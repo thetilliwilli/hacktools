@@ -1,8 +1,6 @@
-#!/bin/python3
+#!/usr/bin/env python3
 import sys
 
-arg_pid = sys.argv[1]
-arg_address = sys.argv[-1]
 
 # virtual memory area
 # http://books.gigatux.nl/mirror/kerneldevelopment/0672327201/ch14lev1sec2.html
@@ -24,6 +22,7 @@ class Vma:
   return str(self_dict)
 
 def round(address):
+ arg_pid = sys.argv[1]
  with open(f'/proc/{arg_pid}/maps') as f:
   for line in f:
    map_entry = Vma(line)
@@ -38,16 +37,23 @@ def address_to_int(s):
  return address
 
 def show_help():
- print('''Usage: ./find-mem.py PID MEMADDRESS
-or ./find-mem.py PID to enter interactive mode''')
+ print('''Usage:
+
+./memfind.py PID ADDRESS
+./memfind.py PID - to enter REPL mode
+
+PID - process id
+ADDRESS - memory address in hex or decimal form, e.g.: 0x7fffffffe168 or 140737488347496''')
 
 def main():
  args_count = len(sys.argv)
- if args_count == 1:
+
+ if args_count == 1 or sys.argv[1].strip() == '-h' or sys.argv[1].strip() == '--help':
   show_help()
  else:
-  isReplMode = len(sys.argv) == 2
+  isReplMode = args_count == 2
   round_count = (sys.maxsize if isReplMode else 1)
+  arg_address = sys.argv[-1]
   for i in range(round_count):
    input_address = input('address> ') if isReplMode else arg_address
    try:
